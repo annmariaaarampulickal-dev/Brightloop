@@ -218,3 +218,20 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment secrets
+.env.*
+!.env.example
+
+# Frontend dependencies and build files
+node_modules/
+dist/
