@@ -1,6 +1,6 @@
 # Brightloop frontend (React + Vite)
 
-Built against the Brightloop FastAPI backend (`brightloop.zip`).
+Built against the Brightloop FastAPI backend.
 
 ## Run
 
