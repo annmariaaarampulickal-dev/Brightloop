@@ -1,0 +1,12 @@
+:root {
+  --bg: #f5f6fa; --card: #ffffff; --text: #1f2430; --muted: #6b7280; --border: #e5e7eb;
+  --primary: #4f46e5; --primary-dark: #4338ca; --green: #16a34a; --amber: #d97706; --red: #dc2626; --side: #111827;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+h1, h2, h3, h4 { margin: 0 0 8px; }
+a { color: var(--primary); text-decoration: none; }
+input, select, textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font: inherit; background: #fff; }
+input:focus, select:focus, textarea:focus { outline: 2px solid #c7d2fe; border-color: var(--primary); }
+textarea { min-height: 60px; resize: vertical; }
+.muted { color: var(--muted); } .small { font-size: 12px; } .center { text-align: center; }
