@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { register } from '../services/authService';
 import { passwordErrors, validEmail } from '../utils/validators';
+import { errMsg } from '../utils/errors';
 
 export default function Register() {
   const nav = useNavigate();
@@ -16,10 +17,10 @@ export default function Register() {
     if (pwErrs.length) return setError('Password does not meet the rules');
     if (form.password !== form.confirm) return setError('Passwords do not match');
     try {
-      await register(form.name, form.email, form.password);
-      nav('/login');
+      await register(form.name.trim(), form.email, form.password);
+      nav('/login', { state: { notice: 'Account created. You can sign in now.' } });
     } catch (err) {
-      setError(err.response?.data?.message || err.message); // e.g. "email already has an account"
+      setError(errMsg(err)); // 409 = "An account with this email already exists"
     }
   };
 
@@ -33,9 +34,7 @@ export default function Register() {
         <label className="field">Business / full name<input value={form.name} onChange={set('name')} /></label>
         <label className="field">Email<input type="email" value={form.email} onChange={set('email')} /></label>
         <label className="field">Password<input type="password" value={form.password} onChange={set('password')} /></label>
-        {form.password && pwErrs.length > 0 && (
-          <ul className="rules">{pwErrs.map((r) => <li key={r}>{r}</li>)}</ul>
-        )}
+        {form.password && pwErrs.length > 0 && <ul className="rules">{pwErrs.map((r) => <li key={r}>{r}</li>)}</ul>}
         <label className="field">Confirm password<input type="password" value={form.confirm} onChange={set('confirm')} /></label>
         <button className="btn btn-primary block">Sign up</button>
         <div className="auth-links"><Link to="/login">Already have an account?</Link></div>

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { errMsg } from '../utils/errors';
 
 // const { data, loading, error, reload } = useFetch(() => listInvoices(filters), [filters])
 export default function useFetch(fn, deps = []) {
@@ -7,14 +8,16 @@ export default function useFetch(fn, deps = []) {
   const [error, setError] = useState('');
 
   const run = useCallback(() => {
+    let alive = true;
     setLoading(true);
     fn()
-      .then((d) => { setData(d); setError(''); })
-      .catch((e) => setError(e.response?.data?.message || e.message))
-      .finally(() => setLoading(false));
+      .then((d) => alive && (setData(d), setError('')))
+      .catch((e) => alive && setError(errMsg(e)))
+      .finally(() => alive && setLoading(false));
+    return () => { alive = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 
-  useEffect(run, [run]);
+  useEffect(() => run(), [run]);
   return { data, loading, error, reload: run };
 }

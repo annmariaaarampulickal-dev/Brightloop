@@ -1,8 +1,10 @@
+import { cap } from '../utils/format';
+
 const COLORS = {
-  Draft: 'gray', Quotation: 'blue', Confirmed: 'purple', Active: 'green', Closed: 'gray',
-  Paid: 'green', Cancelled: 'red', Overdue: 'red', Outstanding: 'amber',
+  draft: 'gray', quotation: 'blue', confirmed: 'purple', active: 'green', paused: 'amber', closed: 'gray',
+  paid: 'green', cancelled: 'red', overdue: 'red',
 };
 
 export default function StatusBadge({ status }) {
-  return <span className={`badge badge-${COLORS[status] || 'gray'}`}>{status}</span>;
+  return <span className={`badge badge-${COLORS[status] || 'gray'}`}>{cap(status)}</span>;
 }

@@ -12,16 +12,15 @@ export const addDays = (date, days) => {
   return d.toISOString().slice(0, 10);
 };
 
-// lines: [{qty, unitPrice, taxRate}]  discount: {type:'percent'|'fixed', value} | null
-export const calcTotals = (lines = [], discount = null) => {
-  const subtotal = lines.reduce((s, l) => s + l.qty * l.unitPrice, 0);
-  let disc = 0;
-  if (discount) disc = discount.type === 'percent' ? (subtotal * discount.value) / 100 : discount.value;
-  disc = Math.min(disc, subtotal);
-  const ratio = subtotal ? (subtotal - disc) / subtotal : 0;
-  const tax = lines.reduce((s, l) => s + (l.qty * l.unitPrice * (l.taxRate || 0)) / 100, 0) * ratio;
-  return { subtotal, discount: disc, tax, total: subtotal - disc + tax };
+// "bank_transfer" -> "Bank transfer"
+export const cap = (s = '') => {
+  const t = String(s).replace(/_/g, ' ');
+  return t.charAt(0).toUpperCase() + t.slice(1);
 };
 
-export const isOverdue = (inv) =>
-  inv.status === 'Confirmed' && inv.dueDate < today() && inv.total - inv.paid > 0;
+// Rough on-screen estimate for the new-subscription form. The backend does the real maths.
+export const estimate = (lines = []) => {
+  const subtotal = lines.reduce((s, l) => s + l.quantity * l.unit_price, 0);
+  const tax = lines.reduce((s, l) => s + (l.quantity * l.unit_price * (l.tax_rate || 0)) / 100, 0);
+  return { subtotal, tax, total: subtotal + tax };
+};

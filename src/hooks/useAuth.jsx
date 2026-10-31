@@ -7,11 +7,10 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('user') || 'null'));
 
   const login = async (email, password) => {
-    const { token, user } = await auth.login(email, password);
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
-    setUser(user);
-    return user;
+    const u = await auth.login(email, password); // { id, email, name, role, is_active }
+    localStorage.setItem('user', JSON.stringify(u));
+    setUser(u);
+    return u;
   };
 
   const logout = () => {

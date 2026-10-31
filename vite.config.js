@@ -1,3 +1,5 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-export default defineConfig({ plugins: [react()], server: { port: 5173 } });
+
+// Port 3000 matches FRONTEND_URL in the backend, so password-reset emails link to this app.
+export default defineConfig({ plugins: [react()], server: { port: 3000 } });

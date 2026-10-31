@@ -1,48 +1,21 @@
-import api, { call } from './api';
-import { db } from './mockData';
+import { get, post } from './api';
 
-const fail = (msg) => { const e = new Error(msg); e.response = { data: { message: msg } }; throw e; };
+// POST /auth/login returns only a token, so we fetch the profile (id, name, role) with GET /auth/me
+export const login = async (email, password) => {
+  const { access_token } = await post('/auth/login', { email, password });
+  localStorage.setItem('token', access_token);
+  try {
+    return await get('/auth/me');
+  } catch (e) {
+    localStorage.removeItem('token');
+    throw e;
+  }
+};
 
-export const login = (email, password) =>
-  call(
-    () => {
-      const u = db.users.find((x) => x.email.toLowerCase() === email.toLowerCase() && x.password === password);
-      if (!u) fail('Invalid email or password');
-      const { password: _p, ...user } = u;
-      return { token: 'mock-token-' + u.id, user };
-    },
-    () => api.post('/auth/login', { email, password })
-  );
-
-export const register = (name, email, password) =>
-  call(
-    () => {
-      if (db.users.some((u) => u.email.toLowerCase() === email.toLowerCase())) fail('This email already has an account');
-      const cust = { id: ++db.seq.id, name, email, phone: '' };
-      db.customers.push(cust);
-      db.users.push({ id: cust.id + 1000, name, email, password, role: 'customer', customerId: cust.id });
-      return { ok: true };
-    },
-    () => api.post('/auth/register', { name, email, password })
-  );
-
-// Backend should email a reset link to the registered address
-export const forgotPassword = (email) =>
-  call(() => ({ ok: true }), () => api.post('/auth/forgot-password', { email }));
-
-export const resetPassword = (token, password) =>
-  call(() => ({ ok: true }), () => api.post('/auth/reset-password', { token, password }));
+export const register = (name, email, password) => post('/auth/register', { name, email, password });
+export const forgotPassword = (email) => post('/auth/forgot-password', { email });
+export const resetPassword = (token, newPassword) => post('/auth/reset-password', { token, new_password: newPassword });
 
 // Admin only
-export const addStaff = (data) =>
-  call(
-    () => {
-      if (db.users.some((u) => u.email === data.email)) fail('Email already in use');
-      db.users.push({ id: ++db.seq.id, role: 'staff', ...data });
-      return { ok: true };
-    },
-    () => api.post('/users/staff', data)
-  );
-
-export const listStaff = () =>
-  call(() => db.users.filter((u) => u.role === 'staff').map(({ password, ...u }) => u), () => api.get('/users/staff'));
+export const addStaff = (data) => post('/users/staff', data);
+export const listStaff = () => get('/users', { role: 'staff', limit: 200 });

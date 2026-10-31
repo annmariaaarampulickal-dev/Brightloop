@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { forgotPassword } from '../services/authService';
 import { validEmail } from '../utils/validators';
+import { errMsg } from '../utils/errors';
 import Modal from '../components/Modal';
 
 export default function Login() {
   const { login } = useAuth();
   const nav = useNavigate();
+  const location = useLocation();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -23,14 +25,16 @@ export default function Login() {
       const u = await login(form.email, form.password);
       nav(u.role === 'customer' ? '/portal' : '/app');
     } catch (err) {
-      setError(err.response?.data?.message || err.message);
+      setError(errMsg(err));
     } finally { setBusy(false); }
   };
 
   const sendReset = async () => {
     if (!validEmail(resetEmail)) return setResetMsg('Enter a valid email');
-    await forgotPassword(resetEmail);
-    setResetMsg('If that email is registered, a reset link is on its way.');
+    try {
+      const r = await forgotPassword(resetEmail);
+      setResetMsg(r.message);
+    } catch (e) { setResetMsg(errMsg(e)); }
   };
 
   return (
@@ -38,6 +42,7 @@ export default function Login() {
       <form className="auth-card" onSubmit={submit}>
         <h2>Welcome back</h2>
         <p className="muted">Sign in to Brightloop</p>
+        {location.state?.notice && <div className="alert alert-info">{location.state.notice}</div>}
         {error && <div className="alert">{error}</div>}
         <label className="field">Email
           <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
@@ -50,7 +55,7 @@ export default function Login() {
           <button type="button" className="link-btn" onClick={() => { setForgot(true); setResetMsg(''); }}>Forgot password?</button>
           <Link to="/register">Create account</Link>
         </div>
-        <p className="muted small">Demo: admin@brightloop.com / Admin@12345 · staff@brightloop.com / Staff@12345 · customer@acme.com / Cust@12345</p>
+        <p className="muted small">Demo (after <code>python -m app.seed</code>): admin@brightloop.com / Admin@12345 · staff@brightloop.com / Demo@12345 · acme@example.com / Demo@12345</p>
       </form>
 
       <Modal open={forgot} title="Reset password" onClose={() => setForgot(false)}>
